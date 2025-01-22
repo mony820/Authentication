@@ -49,13 +49,11 @@ app.post("/register", async (req, res) => {
         // Store hash in your password DB.
         const result = await db.query(
           "INSERT INTO users (email, password) VALUES ($1, $2)",
-          [email, hash]
-        )};
-    });
-
-      
-      console.log(result);
-      res.render("secrets.ejs");
+          [email, hash])
+          console.log(result);
+          res.render("secrets.ejs");
+        };
+    });    
     }
   } catch (err) {
     console.log(err);
@@ -74,11 +72,18 @@ app.post("/login", async (req, res) => {
       const user = result.rows[0];
       const storedPassword = user.password;
 
-      if (password === storedPassword) {
-        res.render("secrets.ejs");
-      } else {
-        res.send("Incorrect Password");
-      }
+      bcrypt.compare(password, storedPassword, function(err, result) {
+        // result == true
+        if (err) {
+          console.log(err);
+        }else{
+          if (result) {
+            res.render("secrets.ejs");
+          }else{
+            res.send("Incorrect Password");
+          }
+        }
+    });
     } else {
       res.send("User not found");
     }
